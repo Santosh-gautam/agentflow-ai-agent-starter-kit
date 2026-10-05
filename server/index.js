@@ -12,26 +12,63 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-const apiKey = process.env.GEMINI_API_KEY || '';
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+// In-Memory Rate Limiting Guardrail (Max 25 requests per minute per IP)
+const ipRequestCounts = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 25;
 
-// Health Check
+const rateLimiter = (req, res, next) => {
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'localhost';
+  const now = Date.now();
+
+  const userHistory = ipRequestCounts.get(ip) || [];
+  const recentRequests = userHistory.filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+
+  if (recentRequests.length >= MAX_REQUESTS_PER_WINDOW) {
+    return res.status(429).json({
+      error: 'Too many requests. Please wait a minute before sending another prompt.'
+    });
+  }
+
+  recentRequests.push(now);
+  ipRequestCounts.set(ip, recentRequests);
+  next();
+};
+
+// Health Check & System Info
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    hasApiKey: Boolean(apiKey),
-    toolsAvailable: Object.keys(toolRegistry),
+    defaultServerKeyConfigured: Boolean(process.env.GEMINI_API_KEY),
+    supportedModels: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+    toolsCount: Object.keys(toolRegistry).length,
     timestamp: new Date().toISOString()
   });
 });
 
-// Autonomous Agent Streaming Endpoint
-app.post('/api/agent/stream', async (req, res) => {
-  const { prompt } = req.body;
+// Tools Catalog Endpoint
+app.get('/api/tools', (req, res) => {
+  res.json({
+    tools: toolDeclarations
+  });
+});
 
-  if (!prompt) {
-    return res.status(400).json({ error: 'Prompt is required' });
+// Autonomous Agent Streaming Endpoint
+app.post('/api/agent/stream', rateLimiter, async (req, res) => {
+  const { prompt, model: requestedModel = 'gemini-1.5-flash' } = req.body;
+
+  // Validation Guardrails
+  if (!prompt || typeof prompt !== 'string') {
+    return res.status(400).json({ error: 'Valid prompt string is required.' });
   }
+
+  if (prompt.length > 2500) {
+    return res.status(400).json({ error: 'Prompt exceeds maximum length of 2500 characters.' });
+  }
+
+  // Determine API Key priority: Client Header > Server .env
+  const clientKey = req.headers['x-gemini-api-key'] || '';
+  const apiKey = (clientKey || process.env.GEMINI_API_KEY || '').trim();
 
   // Set Server-Sent Events headers
   res.setHeader('Content-Type', 'text/event-stream');
@@ -43,82 +80,108 @@ app.post('/api/agent/stream', async (req, res) => {
   };
 
   try {
-    // If no API key is provided, execute in Mock Sandbox Agent mode so user can test immediately!
-    if (!genAI) {
-      sendEvent('status', { message: 'Running in Local Demo Mode (Add GEMINI_API_KEY for live LLM)' });
-      await new Promise(r => setTimeout(r, 600));
+    // ══════════════════════════════════════════════════════════
+    // DEMO SANDBOX MODE (If no API Key provided)
+    // ══════════════════════════════════════════════════════════
+    if (!apiKey) {
+      sendEvent('status', {
+        message: 'Running in Local Demo Mode. (Add your Gemini API Key in Settings for live LLM).'
+      });
+      await new Promise(r => setTimeout(r, 400));
 
       const lower = prompt.toLowerCase();
-      if (lower.includes('calc') || lower.includes('+') || lower.includes('*') || lower.includes('convert') || lower.includes('bitcoin') || lower.includes('usd')) {
-        // Execute Tool Calling demonstration
-        let toolName = 'calculate_expression';
-        let toolArgs = { expression: '150 * 86.85' };
+      let toolName = 'calculate_expression';
+      let toolArgs = { expression: '1500 * 86.85 + 250' };
 
-        if (lower.includes('bitcoin') || lower.includes('btc')) {
-          toolName = 'fetch_market_or_tech_info';
-          toolArgs = { topic: 'Bitcoin' };
-        } else if (lower.includes('usd') || lower.includes('inr')) {
-          toolName = 'fetch_market_or_tech_info';
-          toolArgs = { topic: 'USD_TO_INR' };
-        }
-
-        sendEvent('tool_start', { name: toolName, args: toolArgs });
-        await new Promise(r => setTimeout(r, 800));
-
-        const result = await toolRegistry[toolName](toolArgs);
-        sendEvent('tool_result', { name: toolName, result });
-        await new Promise(r => setTimeout(r, 400));
-
-        const answer = `[Agent Reasoning Complete]\nBased on the tool execution for \`${toolName}\`:\n\n` +
-          `\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\`\n\n` +
-          `The autonomous agent successfully parsed your prompt, executed the necessary tool with schema validation, and produced the final verified response.`;
-
-        for (const token of answer.split(' ')) {
-          sendEvent('token', { text: token + ' ' });
-          await new Promise(r => setTimeout(r, 25));
-        }
-      } else {
-        const text = `I received your prompt: "${prompt}".\n\nTo connect this agent to live Google Gemini 2.0 models with dynamic tool reasoning, add your free \`GEMINI_API_KEY\` in \`server/.env\`!\n\nTry asking: "Calculate 1500 * 86.85" or "What is the price of Bitcoin?" to see live tool calling in action.`;
-        for (const token of text.split(' ')) {
-          sendEvent('token', { text: token + ' ' });
-          await new Promise(r => setTimeout(r, 30));
-        }
+      if (lower.includes('chart') || lower.includes('graph') || lower.includes('revenue') || lower.includes('sales')) {
+        toolName = 'generate_chart_visualization';
+        toolArgs = {
+          title: 'Q1-Q4 Product Performance',
+          chartType: 'bar',
+          labels: ['Q1 Jan', 'Q2 Apr', 'Q3 Jul', 'Q4 Oct'],
+          values: [28000, 42500, 68000, 94000]
+        };
+      } else if (lower.includes('bitcoin') || lower.includes('btc') || lower.includes('crypto')) {
+        toolName = 'fetch_market_or_tech_info';
+        toolArgs = { topic: 'Bitcoin' };
+      } else if (lower.includes('usd') || lower.includes('inr') || lower.includes('currency')) {
+        toolName = 'fetch_market_or_tech_info';
+        toolArgs = { topic: 'USD_TO_INR' };
+      } else if (!lower.includes('calc') && !lower.includes('+') && !lower.includes('*')) {
+        toolName = 'fetch_market_or_tech_info';
+        toolArgs = { topic: prompt.slice(0, 30) };
       }
 
-      sendEvent('done', { completed: true });
+      const startTime = Date.now();
+      sendEvent('tool_start', { name: toolName, args: toolArgs });
+      await new Promise(r => setTimeout(r, 700));
+
+      const result = await toolRegistry[toolName](toolArgs);
+      const latency = Date.now() - startTime;
+      sendEvent('tool_result', { name: toolName, result, latencyMs: latency });
+      await new Promise(r => setTimeout(r, 300));
+
+      let answer = '';
+      if (toolName === 'generate_chart_visualization') {
+        answer = `### 📊 Visual Analytics Generated\n\nI executed the \`${toolName}\` tool and rendered the interactive visualization data for **${toolArgs.title}**.\n\nTotal aggregated volume: **$${result.total.toLocaleString()}** across 4 quarters.`;
+      } else {
+        answer = `### ⚡ Tool Execution Completed\n\nThe autonomous agent executed \`${toolName}\` (${latency}ms) with schema validation.\n\n` +
+          `\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\`\n\n` +
+          `**Connect Gemini:** Click the **API Key** button at the top to connect your free Google Gemini key for unrestricted AI agent capabilities!`;
+      }
+
+      for (const token of answer.split(' ')) {
+        sendEvent('token', { text: token + ' ' });
+        await new Promise(r => setTimeout(r, 20));
+      }
+
+      sendEvent('done', { completed: true, steps: 1 });
       return res.end();
     }
 
-    // LIVE GEMINI 2.0 / 1.5 AGENT EXECUTION
+    // ══════════════════════════════════════════════════════════
+    // LIVE GEMINI AGENT EXECUTION
+    // ══════════════════════════════════════════════════════════
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const validModel = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'].includes(requestedModel)
+      ? requestedModel
+      : 'gemini-1.5-flash';
+
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: validModel,
       tools: [{ functionDeclarations: toolDeclarations }]
     });
 
     const chat = model.startChat();
-    sendEvent('status', { message: 'Agent analyzing intent...' });
+    sendEvent('status', { message: `Agent initialized with ${validModel}...` });
 
     let currentResponse = await chat.sendMessage(prompt);
     let functionCalls = currentResponse.response.functionCalls();
 
     let steps = 0;
-    const MAX_STEPS = 5;
+    const MAX_STEPS = 6; // Guard against infinite tool invocation loops
 
     while (functionCalls && functionCalls.length > 0 && steps < MAX_STEPS) {
       steps++;
       for (const call of functionCalls) {
         const { name, args } = call;
-        sendEvent('tool_start', { name, args });
+        const toolStart = Date.now();
+        sendEvent('tool_start', { name, args, step: steps });
 
         const executor = toolRegistry[name];
-        let toolResult = { error: 'Unknown tool' };
+        let toolResult = { error: `Tool ${name} not found in registry.` };
         if (executor) {
-          toolResult = await executor(args);
+          try {
+            toolResult = await executor(args);
+          } catch (execErr) {
+            toolResult = { error: `Execution error: ${execErr.message}` };
+          }
         }
 
-        sendEvent('tool_result', { name, result: toolResult });
+        const toolLatency = Date.now() - toolStart;
+        sendEvent('tool_result', { name, result: toolResult, latencyMs: toolLatency });
 
-        // Send tool output back to model
+        // Provide tool output back to agent's reasoning memory
         currentResponse = await chat.sendMessage([
           {
             functionResponse: {
@@ -131,17 +194,20 @@ app.post('/api/agent/stream', async (req, res) => {
       functionCalls = currentResponse.response.functionCalls();
     }
 
-    // Stream final text response
+    // Stream final synthesis text
     const finalAnswer = currentResponse.response.text();
     for (const token of finalAnswer.split(' ')) {
       sendEvent('token', { text: token + ' ' });
-      await new Promise(r => setTimeout(r, 20));
+      await new Promise(r => setTimeout(r, 18));
     }
 
-    sendEvent('done', { totalSteps: steps });
+    sendEvent('done', { totalSteps: steps, modelUsed: validModel });
     res.end();
   } catch (error) {
-    sendEvent('error', { message: error.message });
+    console.error('Agent execution error:', error);
+    sendEvent('error', {
+      message: error.message || 'An unexpected error occurred during agent execution.'
+    });
     res.end();
   }
 });
