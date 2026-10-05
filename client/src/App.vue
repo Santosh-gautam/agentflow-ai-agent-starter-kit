@@ -606,9 +606,9 @@
             <span>Built with</span>
             <span class="inline-block animate-pulse text-rose-500 text-xs">❤️</span>
             <span>by</span>
-            <a href="https://iamsantosh.com" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 font-bold hover:underline">Santosh Gautam</a>
+            <a href="https://www.hisantosh.com/" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 font-bold hover:underline">Santosh Gautam</a>
             <span>·</span>
-            <a href="https://iamsantosh.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-slate-300">iamsantosh.com</a>
+            <a href="https://www.hisantosh.com/" target="_blank" rel="noopener" class="text-slate-400 hover:text-slate-300">hisantosh.com</a>
           </div>
           <span>Model: <strong class="text-slate-400 font-mono">{{ selectedModel }}</strong> · {{ inputQuery.length }} / 2000 chars</span>
         </div>
