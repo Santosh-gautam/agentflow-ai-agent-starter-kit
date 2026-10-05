@@ -88,19 +88,6 @@
           <span>🧰 Tools (5)</span>
         </button>
 
-        <!-- Developer Link (iamsantosh.com) -->
-        <a
-          href="https://iamsantosh.com"
-          target="_blank"
-          rel="noopener"
-          class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-slate-200 hover:text-white text-xs font-semibold transition-all shadow-sm group"
-          title="Created with ❤️ by Santosh Gautam (iamsantosh.com)"
-        >
-          <span class="inline-block animate-pulse text-xs text-rose-500">❤️</span>
-          <span>Made by <strong>Santosh Gautam</strong></span>
-          <span class="text-[10px] text-rose-400 group-hover:translate-x-0.5 transition-transform">↗</span>
-        </a>
-
         <!-- GitHub Star Link -->
         <a
           href="https://github.com/Santosh-gautam/agentflow-ai-agent-starter-kit"
