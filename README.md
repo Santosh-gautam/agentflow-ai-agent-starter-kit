@@ -6,7 +6,9 @@
 
 An enterprise-ready, open-source starter kit for building **Autonomous Multi-Step AI Agents** with schema-validated **Tool Calling**, real-time **Server-Sent Events (SSE) streaming**, and a reactive **Vue 3** frontend.
 
-Built by **[Santosh Gautam](https://www.hisantosh.com)**.
+Built with ❤️ by **[Santosh Gautam](https://iamsantosh.com)**.
+- Portfolio: [iamsantosh.com](https://iamsantosh.com)
+- GitHub: [@Santosh-gautam](https://github.com/Santosh-gautam)
 
 ---
 

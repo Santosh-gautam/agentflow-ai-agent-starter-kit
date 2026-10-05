@@ -88,6 +88,19 @@
           <span>🧰 Tools (5)</span>
         </button>
 
+        <!-- Developer Link (iamsantosh.com) -->
+        <a
+          href="https://iamsantosh.com"
+          target="_blank"
+          rel="noopener"
+          class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-white text-xs font-semibold transition-all shadow-sm group"
+          title="Created by Santosh Gautam (iamsantosh.com)"
+        >
+          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+          <span>By <strong>Santosh Gautam</strong></span>
+          <span class="text-[10px] text-blue-400">↗</span>
+        </a>
+
         <!-- GitHub Star Link -->
         <a
           href="https://github.com/Santosh-gautam/agentflow-ai-agent-starter-kit"
@@ -602,8 +615,13 @@
 
         <!-- Footer Info -->
         <div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
-          <span>Model: <strong class="text-slate-400 font-mono">{{ selectedModel }}</strong> · Multi-step Agent Loop</span>
-          <span>{{ inputQuery.length }} / 2000 chars</span>
+          <div class="flex items-center gap-1.5">
+            <span>Built by</span>
+            <a href="https://iamsantosh.com" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 font-bold hover:underline">Santosh Gautam</a>
+            <span>·</span>
+            <a href="https://iamsantosh.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-slate-300">iamsantosh.com</a>
+          </div>
+          <span>Model: <strong class="text-slate-400 font-mono">{{ selectedModel }}</strong> · {{ inputQuery.length }} / 2000 chars</span>
         </div>
       </div>
     </footer>
