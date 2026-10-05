@@ -15,6 +15,7 @@ export const tools = [
 export const toolRegistry = {
   [calculatorTool.declaration.name]: calculatorTool.execute,
   [webSearchTool.declaration.name]: webSearchTool.execute,
+  'search_web_information': webSearchTool.execute,
   [chartDataTool.declaration.name]: chartDataTool.execute,
   [weatherTool.declaration.name]: weatherTool.execute,
   [stockTool.declaration.name]: stockTool.execute,
