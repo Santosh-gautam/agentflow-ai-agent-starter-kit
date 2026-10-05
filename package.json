@@ -1,0 +1,24 @@
+{
+  "name": "agentflow-starter-kit",
+  "version": "1.0.0",
+  "description": "Production-ready open-source starter kit for autonomous AI agents with Tool Calling, SSE streaming, and Vue 3",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev:server & npm run dev:client",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "keywords": [
+    "ai-agent",
+    "tool-calling",
+    "mcp",
+    "vue3",
+    "nodejs",
+    "sse",
+    "gemini",
+    "openai"
+  ],
+  "author": "Santosh Gautam <gautamsantosh317@gmail.com> (https://www.hisantosh.com)",
+  "license": "MIT"
+}
