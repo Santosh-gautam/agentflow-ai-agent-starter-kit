@@ -1,117 +1,117 @@
 <template>
-  <div class="min-h-screen bg-[#070c18] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+  <div class="h-screen w-screen bg-[#060913] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white overflow-hidden">
     
-    <!-- Ambient Background Glows -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      <div class="absolute -top-40 -left-40 w-[32rem] h-[32rem] bg-blue-600/10 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/3 -right-40 w-[28rem] h-[28rem] bg-indigo-600/10 rounded-full blur-[140px]"></div>
-      <div class="absolute -bottom-40 left-1/3 w-[30rem] h-[30rem] bg-cyan-600/10 rounded-full blur-[140px]"></div>
+    <!-- Subtle Grid & Radial Glow Background -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0f_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[48rem] h-[24rem] bg-gradient-to-b from-blue-600/15 via-indigo-600/10 to-transparent rounded-full blur-[130px]"></div>
+      <div class="absolute bottom-0 right-0 w-[30rem] h-[20rem] bg-cyan-600/10 rounded-full blur-[140px]"></div>
     </div>
 
     <!-- ═══════════════════════════════════════════════
-         TOP NAVBAR & WORKSPACE CONTROLS
+         TOP NAVBAR & CONTROLS (PINNED)
     ═══════════════════════════════════════════════ -->
-    <header class="relative z-20 w-full border-b border-slate-800/90 bg-slate-950/80 backdrop-blur-xl px-4 sm:px-8 py-3 flex items-center justify-between shadow-xl">
+    <header class="relative z-30 w-full shrink-0 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-2xl px-4 sm:px-8 py-3 flex items-center justify-between shadow-lg">
       
-      <!-- Brand Logo & Status -->
+      <!-- Brand Logo & Live Status -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-blue-500/25 border border-white/10">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-black text-white text-base shadow-md shadow-blue-500/20 border border-white/10">
           ⚡
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-1.5">
+            <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
               AgentFlow
               <span class="text-blue-400 font-mono text-xs font-semibold">Studio</span>
             </h1>
             <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/30">
-              v1.2 Live
+              v1.2
             </span>
           </div>
           <p class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Tool Calling Engine & SSE Loop
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Tool Calling Engine & SSE Stream
           </p>
         </div>
       </div>
 
-      <!-- Navigation Tabs (Views) -->
-      <div class="hidden md:flex items-center p-1 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-inner">
+      <!-- Navigation Tabs (Center) -->
+      <div class="hidden md:flex items-center p-1 bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-inner">
         <button
           @click="activeView = 'chat'"
-          class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
-          :class="activeView === 'chat' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-white'"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+          :class="activeView === 'chat' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'"
         >
           <span>💬 Agent Chat</span>
         </button>
         <button
           @click="activeView = 'playground'"
-          class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
-          :class="activeView === 'playground' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-white'"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+          :class="activeView === 'playground' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'"
         >
           <span>🧪 Tool Playground</span>
         </button>
         <button
           @click="activeView = 'pipeline'"
-          class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
-          :class="activeView === 'pipeline' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-white'"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+          :class="activeView === 'pipeline' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'"
         >
-          <span>📐 Architecture</span>
+          <span>📐 Pipeline</span>
         </button>
         <button
           @click="showKeyGuideModal = true"
           class="px-3 py-1.5 rounded-xl text-xs font-bold text-amber-400 hover:text-amber-300 transition-all flex items-center gap-1"
         >
-          <span>📖 API Guide</span>
+          <span>📖 Key Guide</span>
         </button>
       </div>
 
-      <!-- Action & Settings Buttons -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Right Action Buttons -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
         
         <!-- Gemini API Key / Settings Button -->
         <button
           @click="showSettingsModal = true"
-          class="px-3 sm:px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm border"
+          class="px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm border"
           :class="userApiKey ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/20' : 'bg-blue-600 hover:bg-blue-500 text-white border-blue-400/30 shadow-blue-500/20'"
         >
           <span v-if="userApiKey">🔑 Gemini Active</span>
-          <span v-else>⚙️ Connect Gemini</span>
+          <span v-else>⚙️ Connect Key</span>
         </button>
 
         <!-- Tools Catalog Button -->
         <button
           @click="showToolsModal = true"
-          class="hidden sm:flex px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold items-center gap-1.5 transition-colors"
+          class="hidden sm:flex px-3 py-1.5 rounded-xl border border-slate-700/80 bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold items-center gap-1.5 transition-colors"
           title="Inspect Registered Tools"
         >
           <span>🧰 Tools (5)</span>
         </button>
 
-        <!-- GitHub Link -->
+        <!-- GitHub Star Link -->
         <a
           href="https://github.com/Santosh-gautam/agentflow-ai-agent-starter-kit"
           target="_blank"
           rel="noopener"
-          class="hidden sm:flex px-3 py-2 rounded-xl border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold items-center gap-1.5 transition-colors"
+          class="hidden sm:flex px-3 py-1.5 rounded-xl border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold items-center gap-1.5 transition-colors"
         >
-          <span>⭐ GitHub</span>
+          <span>⭐ Star</span>
         </a>
 
         <!-- Clear Chat Button -->
         <button
           v-if="activeView === 'chat' && messages.length > 0"
           @click="clearChat"
-          class="w-9 h-9 rounded-xl border border-slate-800 hover:border-rose-500/40 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 flex items-center justify-center text-xs transition-colors"
-          title="Clear Chat Conversation"
+          class="w-8 h-8 rounded-xl border border-slate-800 hover:border-rose-500/40 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 flex items-center justify-center text-xs transition-colors"
+          title="Clear Conversation"
         >
           🗑️
         </button>
       </div>
     </header>
 
-    <!-- Mobile View Selector Sub-nav -->
-    <div class="md:hidden flex items-center justify-center p-2 bg-slate-950 border-b border-slate-800/80 gap-1 text-xs">
+    <!-- Mobile View Switcher Sub-nav -->
+    <div class="md:hidden shrink-0 flex items-center justify-center p-2 bg-slate-950 border-b border-slate-800/80 gap-1 text-xs z-20">
       <button
         @click="activeView = 'chat'"
         class="px-3 py-1.5 rounded-lg font-bold"
@@ -131,7 +131,7 @@
         class="px-3 py-1.5 rounded-lg font-bold"
         :class="activeView === 'pipeline' ? 'bg-blue-600 text-white' : 'text-slate-400'"
       >
-        📐 Flow
+        📐 Pipeline
       </button>
       <button
         @click="showKeyGuideModal = true"
@@ -142,32 +142,32 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════
-         VIEW 1: AGENT CHAT VIEWPORT
+         VIEW 1: AGENT CHAT VIEWPORT (SCROLLABLE)
     ═══════════════════════════════════════════════ -->
-    <main v-if="activeView === 'chat'" class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 overflow-y-auto space-y-6">
+    <main v-if="activeView === 'chat'" class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-4 overflow-y-auto space-y-5">
       
       <!-- Welcome Hero (When empty) -->
-      <div v-if="messages.length === 0" class="py-6 text-center max-w-2xl mx-auto space-y-5">
+      <div v-if="messages.length === 0" class="py-4 text-center max-w-2xl mx-auto space-y-4">
         
-        <div class="inline-flex p-4 rounded-3xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 text-3xl shadow-xl">
+        <div class="inline-flex p-3 rounded-2xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 text-2xl shadow-lg">
           🤖
         </div>
 
-        <div class="space-y-1.5">
+        <div class="space-y-1">
           <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
             Autonomous AI Agent Studio
           </h2>
           <p class="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
-            Experience production <strong>Tool Calling (Function Calling)</strong> with Server-Sent Events (SSE). Ask queries, and watch the agent iteratively evaluate, execute tools, and stream answers.
+            Experience production <strong>Tool Calling (Function Calling)</strong> with Server-Sent Events (SSE). Ask queries, and watch the agent evaluate, execute tools, and stream answers.
           </p>
         </div>
 
         <!-- Connection Status & Guide Banner -->
-        <div class="p-4 rounded-2xl border text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg"
+        <div class="p-3.5 rounded-2xl border text-left flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
              :class="userApiKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-900/80 border-slate-800'">
-          <div class="space-y-1">
+          <div class="space-y-0.5">
             <p class="text-xs font-bold text-white flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" :class="userApiKey ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
+              <span class="w-2 h-2 rounded-full" :class="userApiKey ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
               {{ userApiKey ? `Connected: Gemini (${selectedModel})` : 'Interactive Demo Sandbox Active' }}
             </p>
             <p class="text-[11px] text-slate-400 leading-normal">
@@ -192,7 +192,7 @@
         </div>
 
         <!-- Suggestion Cards (Interactive Prompts) -->
-        <div class="pt-2 text-left space-y-2.5">
+        <div class="pt-1 text-left space-y-2">
           <div class="flex items-center justify-between">
             <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">⚡ Instant Tool-Calling Prompts</p>
             <span class="text-[11px] text-blue-400 font-medium">Click to Run</span>
@@ -378,7 +378,7 @@
          VIEW 2: INTERACTIVE TOOL PLAYGROUND (DIRECT CALLER)
     ═══════════════════════════════════════════════ -->
     <main v-else-if="activeView === 'playground'" class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 overflow-y-auto space-y-6">
-      <div class="space-y-2">
+      <div class="space-y-1">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-xl font-black text-white flex items-center gap-2">
@@ -471,7 +471,7 @@
          VIEW 3: AGENT EXECUTION PIPELINE VISUALIZER
     ═══════════════════════════════════════════════ -->
     <main v-else-if="activeView === 'pipeline'" class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 overflow-y-auto space-y-6">
-      <div class="space-y-2">
+      <div class="space-y-1">
         <h2 class="text-xl font-black text-white flex items-center gap-2">
           <span>📐</span>
           <span>AgentFlow Architecture & Reasoning Loop</span>
@@ -539,70 +539,72 @@
     </main>
 
     <!-- ═══════════════════════════════════════════════
-         BOTTOM INPUT BAR & VOICE CALL MODE (Chat View Only)
+         BOTTOM INPUT BAR & VOICE CALL MODE (Chat View Only - PINNED)
     ═══════════════════════════════════════════════ -->
-    <footer v-if="activeView === 'chat'" class="relative z-20 w-full max-w-4xl mx-auto px-4 sm:px-6 pb-6 pt-2">
-      
-      <!-- Voice Recording Active Indicator -->
-      <div v-if="isListening" class="mb-2 p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center justify-between animate-pulse">
-        <span class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-          <span>🎙️ Voice Mode Active: Speak clearly now...</span>
-        </span>
-        <button @click="stopVoiceInput" class="text-slate-300 hover:text-white underline text-[11px]">Stop Recording</button>
-      </div>
-
-      <!-- Input Box Form -->
-      <form @submit.prevent="handleSubmit" class="relative flex items-center">
+    <footer v-if="activeView === 'chat'" class="relative z-30 w-full shrink-0 border-t border-slate-800/80 bg-slate-950/90 backdrop-blur-2xl px-4 sm:px-8 py-3">
+      <div class="max-w-4xl mx-auto space-y-2">
         
-        <!-- Microphone / Voice Call Button -->
-        <button
-          type="button"
-          @click="toggleVoiceInput"
-          :disabled="isStreaming"
-          class="absolute left-3.5 z-10 w-8 h-8 rounded-xl flex items-center justify-center transition-all"
-          :class="isListening ? 'bg-rose-600 text-white animate-pulse' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'"
-          :title="isListening ? 'Stop Voice Recording' : 'Start Voice Calling / Speech Input'"
-        >
-          <span>🎙️</span>
-        </button>
-
-        <input
-          v-model="inputQuery"
-          type="text"
-          :disabled="isStreaming"
-          maxlength="2000"
-          placeholder="Ask complex queries... (e.g. Check Tokyo weather, NVDA stock, or revenue chart)"
-          class="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-2xl pl-14 pr-32 py-4 text-sm text-white placeholder-slate-500 outline-none transition-all shadow-2xl"
-        />
-
-        <div class="absolute right-2.5 flex items-center gap-2">
-          <!-- Stop Button -->
-          <button
-            v-if="isStreaming"
-            type="button"
-            @click="stopGeneration"
-            class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md"
-          >
-            ⏹ Stop
-          </button>
-
-          <!-- Submit Button -->
-          <button
-            v-else
-            type="submit"
-            :disabled="!inputQuery.trim()"
-            class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold text-white transition-all shadow-lg shadow-blue-500/20"
-          >
-            Send ⚡
-          </button>
+        <!-- Voice Recording Active Indicator -->
+        <div v-if="isListening" class="p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center justify-between animate-pulse">
+          <span class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+            <span>🎙️ Voice Mode Active: Speak clearly now...</span>
+          </span>
+          <button @click="stopVoiceInput" class="text-slate-300 hover:text-white underline text-[11px]">Stop Recording</button>
         </div>
-      </form>
 
-      <!-- Footer Info -->
-      <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2.5 px-2">
-        <span>Model: <strong class="text-slate-400 font-mono">{{ selectedModel }}</strong> · Multi-step Agent Loop</span>
-        <span>{{ inputQuery.length }} / 2000 chars</span>
+        <!-- Input Box Form -->
+        <form @submit.prevent="handleSubmit" class="relative flex items-center">
+          
+          <!-- Microphone / Voice Call Button -->
+          <button
+            type="button"
+            @click="toggleVoiceInput"
+            :disabled="isStreaming"
+            class="absolute left-3.5 z-10 w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+            :class="isListening ? 'bg-rose-600 text-white animate-pulse' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'"
+            :title="isListening ? 'Stop Voice Recording' : 'Start Voice Calling / Speech Input'"
+          >
+            <span>🎙️</span>
+          </button>
+
+          <input
+            v-model="inputQuery"
+            type="text"
+            :disabled="isStreaming"
+            maxlength="2000"
+            placeholder="Ask complex queries... (e.g. Check Tokyo weather, NVDA stock, or revenue chart)"
+            class="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-2xl pl-14 pr-32 py-3.5 text-sm text-white placeholder-slate-500 outline-none transition-all shadow-xl"
+          />
+
+          <div class="absolute right-2.5 flex items-center gap-2">
+            <!-- Stop Button -->
+            <button
+              v-if="isStreaming"
+              type="button"
+              @click="stopGeneration"
+              class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md"
+            >
+              ⏹ Stop
+            </button>
+
+            <!-- Submit Button -->
+            <button
+              v-else
+              type="submit"
+              :disabled="!inputQuery.trim()"
+              class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold text-white transition-all shadow-lg shadow-blue-500/20"
+            >
+              Send ⚡
+            </button>
+          </div>
+        </form>
+
+        <!-- Footer Info -->
+        <div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
+          <span>Model: <strong class="text-slate-400 font-mono">{{ selectedModel }}</strong> · Multi-step Agent Loop</span>
+          <span>{{ inputQuery.length }} / 2000 chars</span>
+        </div>
       </div>
     </footer>
 
@@ -757,7 +759,7 @@
             <div class="w-7 h-7 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
               2
             </div>
-            <div class="space-y-1">
+            <div class="space-y-1 flex-1">
               <h4 class="text-xs sm:text-sm font-bold text-white">Sign In & Click "Create API Key"</h4>
               <p class="text-xs text-slate-400">
                 Sign in with your Google account. Click the blue button labeled <strong>"Create API Key"</strong> and select <em>"Create API Key in new project"</em>.
@@ -770,7 +772,7 @@
             <div class="w-7 h-7 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
               3
             </div>
-            <div class="space-y-1">
+            <div class="space-y-1 flex-1">
               <h4 class="text-xs sm:text-sm font-bold text-white">Copy Your Key String</h4>
               <p class="text-xs text-slate-400">
                 Copy the newly generated key string (which starts with <code class="text-cyan-300 font-mono font-bold">AIzaSy...</code>).
@@ -783,10 +785,10 @@
             <div class="w-7 h-7 rounded-xl bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
               4
             </div>
-            <div class="space-y-1">
+            <div class="space-y-1 flex-1">
               <h4 class="text-xs sm:text-sm font-bold text-white">Paste in AgentFlow Studio</h4>
               <p class="text-xs text-slate-400">
-                Click <strong>"⚙️ Connect Gemini"</strong> in the top header, paste the key into the input box, and click <strong>"Save Settings"</strong>!
+                Click <strong>"⚙️ Connect Key"</strong> in the top header, paste the key into the input box, and click <strong>"Save Settings"</strong>!
               </p>
             </div>
           </div>
