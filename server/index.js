@@ -128,13 +128,13 @@ const executeSimulatedToolReasoning = async (prompt, sendEvent, note) => {
   }
 
   // Detect financial stocks/crypto
-  if (lower.includes('stock') || lower.includes('share') || lower.includes('crypto') || lower.includes('btc') || lower.includes('aapl') || lower.includes('nvda') || lower.includes('price')) {
+  if (lower.includes('stock') || lower.includes('share') || lower.includes('crypto') || lower.includes('btc') || lower.includes('aapl') || lower.includes('nvda') || lower.includes('tsla') || lower.includes('price') || lower.includes('invest')) {
     let syms = [];
+    if (lower.includes('aapl') || lower.includes('apple')) syms.push('AAPL');
+    if (lower.includes('tsla') || lower.includes('tesla')) syms.push('TSLA');
     if (lower.includes('nvda') || lower.includes('nvidia')) syms.push('NVDA');
     if (lower.includes('btc') || lower.includes('bitcoin')) syms.push('BTC');
     if (lower.includes('eth') || lower.includes('ethereum')) syms.push('ETH');
-    if (lower.includes('aapl') || lower.includes('apple')) syms.push('AAPL');
-    if (lower.includes('tsla') || lower.includes('tesla')) syms.push('TSLA');
     if (syms.length === 0) syms.push('NVDA');
     for (const s of syms) {
       tasksToRun.push({
@@ -144,12 +144,21 @@ const executeSimulatedToolReasoning = async (prompt, sendEvent, note) => {
     }
   }
 
+  // Detect web search or technical intelligence
+  if (lower.includes('search') || lower.includes('mcp') || lower.includes('protocol') || lower.includes('who is') || lower.includes('latest') || lower.includes('summary')) {
+    const cleanQuery = prompt.slice(0, 50);
+    tasksToRun.push({
+      toolName: 'search_web_information',
+      toolArgs: { query: cleanQuery }
+    });
+  }
+
   // Detect chart / visual analytics
   if (lower.includes('chart') || lower.includes('graph') || lower.includes('revenue') || lower.includes('sales') || lower.includes('analytics')) {
     tasksToRun.push({
       toolName: 'generate_chart_visualization',
       toolArgs: {
-        title: 'Q1-Q4 AgentFlow Performance Analytics',
+        title: '2026 Fiscal Performance Analytics',
         chartType: 'bar',
         labels: ['Q1 Jan-Mar', 'Q2 Apr-Jun', 'Q3 Jul-Sep', 'Q4 Oct-Dec'],
         values: [32000, 54000, 89000, 128000]
@@ -157,12 +166,23 @@ const executeSimulatedToolReasoning = async (prompt, sendEvent, note) => {
     });
   }
 
-  // Detect math calculation
-  if (lower.includes('calc') || lower.includes('+') || lower.includes('*') || lower.includes('/') || lower.includes('-')) {
-    const expr = prompt.replace(/[^0-9+\-*/().]/g, '') || '1500 * 86.85';
+  // Detect math calculation (explicit arithmetic or portfolio calculation)
+  const mathMatch = prompt.match(/(\(?\d+[\d\s.+\-*/^()]+\d\)?)/);
+  if (mathMatch && (prompt.includes('+') || prompt.includes('*') || prompt.includes('/') || (prompt.includes('-') && !prompt.includes('24h')))) {
     tasksToRun.push({
       toolName: 'calculate_expression',
-      toolArgs: { expression: expr }
+      toolArgs: { expression: mathMatch[0].trim() }
+    });
+  } else if (lower.includes('calculate') || lower.includes('portfolio') || lower.includes('total value')) {
+    // Dynamic investment calculation if shares mentioned
+    const appleSharesMatch = prompt.match(/(\d+)\s*(?:shares?|units?|stock)?\s*(?:of\s*)?(?:apple|aapl)/i);
+    const teslaSharesMatch = prompt.match(/(\d+)\s*(?:shares?|units?|stock)?\s*(?:of\s*)?(?:tesla|tsla)/i);
+    const appleQty = appleSharesMatch ? parseInt(appleSharesMatch[1]) : 15;
+    const teslaQty = teslaSharesMatch ? parseInt(teslaSharesMatch[1]) : 10;
+    const expr = `(${appleQty} * 232.40) + (${teslaQty} * 245.80)`;
+    tasksToRun.push({
+      toolName: 'calculate_expression',
+      toolArgs: { expression: expr, note: `${appleQty} AAPL ($232.40) + ${teslaQty} TSLA ($245.80)` }
     });
   }
 
@@ -189,7 +209,7 @@ const executeSimulatedToolReasoning = async (prompt, sendEvent, note) => {
 
     sendEvent('tool_result', { name: toolName, args: toolArgs, result: resData, latencyMs: latency });
     results.push({ toolName, toolArgs, result: resData, latency });
-    await new Promise(r => setTimeout(r, 150));
+    await new Promise(r => setTimeout(r, 120));
   }
 
   // Synthesize clean multi-step response
@@ -198,6 +218,27 @@ const executeSimulatedToolReasoning = async (prompt, sendEvent, note) => {
   const stockResults = results.filter(r => r.toolName === 'fetchStockPrice');
   const chartResults = results.filter(r => r.toolName === 'generate_chart_visualization');
   const calcResults = results.filter(r => r.toolName === 'calculate_expression');
+  const searchResults = results.filter(r => r.toolName === 'search_web_information');
+
+  if (stockResults.length > 0) {
+    answer += `### 📈 Market Asset Telemetry\n\n`;
+    for (const s of stockResults) {
+      const res = s.result;
+      answer += `- **${res.symbol}** (${res.assetName || res.exchange}): **$${res.priceUSD || res.price}** (24h: \`${res.change24hPercent || res.dailyChange}\`)\n`;
+    }
+    answer += '\n';
+  }
+
+  if (calcResults.length > 0) {
+    const calc = calcResults[0];
+    const calcVal = typeof calc.result.result === 'number' ? calc.result.result.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : calc.result.result;
+    answer += `### 💰 Portfolio Investment Valuation\n\n`;
+    if (calc.toolArgs.note) {
+      answer += `- **Allocations:** ${calc.toolArgs.note}\n`;
+    }
+    answer += `- **Formula:** \`${calc.toolArgs.expression}\`\n`;
+    answer += `- **Total Projected Portfolio Value:** **$${calcVal} USD**\n\n`;
+  }
 
   if (weatherResults.length > 0) {
     answer += `### 🌤️ Live Weather Reports\n\n`;
@@ -211,21 +252,14 @@ const executeSimulatedToolReasoning = async (prompt, sendEvent, note) => {
     }
   }
 
-  if (stockResults.length > 0) {
-    answer += `### 📈 Market Asset Telemetry\n\n`;
-    for (const s of stockResults) {
-      const res = s.result;
-      answer += `- **${res.symbol}** (${res.assetName || res.exchange}): **$${res.priceUSD || res.price}** (24h: \`${res.change24hPercent || res.dailyChange}\`)\n`;
-    }
-    answer += '\n';
+  if (searchResults.length > 0) {
+    answer += `### 🔍 Technical Intelligence Briefing\n\n` +
+      `- **Model Context Protocol (MCP):** Open protocol standard established in 2026 enabling AI agents to connect securely to local files, databases, enterprise tools, and APIs.\n` +
+      `- **Autonomous Tool Loops:** Agents use ReAct loops to evaluate schema, execute programmatic tools, inspect return buffers, and self-correct.\n\n`;
   }
 
   if (chartResults.length > 0) {
     answer += `### 📊 Visual Analytics\n\nGenerated performance chart data for **${chartResults[0].toolArgs.title}** with dynamic metric aggregation.\n\n`;
-  }
-
-  if (calcResults.length > 0) {
-    answer += `### 🧮 Calculation Result\n\n\`${calcResults[0].toolArgs.expression}\` = **${calcResults[0].result.result}**\n\n`;
   }
 
   if (note) {

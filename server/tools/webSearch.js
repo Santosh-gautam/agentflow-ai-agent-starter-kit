@@ -16,10 +16,11 @@ export const webSearchTool = {
       required: ["topic"]
     }
   },
-  async execute({ topic }) {
-    const key = topic.toLowerCase().trim();
+  async execute(args = {}) {
+    const raw = args.topic || args.query || args.search || 'latest';
+    const key = String(raw).toLowerCase().trim();
     if (key.includes('usd') || key.includes('inr')) {
-      return { topic, rate: 86.85, base: "USD", target: "INR", timestamp: new Date().toISOString() };
+      return { topic: raw, rate: 86.85, base: "USD", target: "INR", timestamp: new Date().toISOString() };
     }
     if (key.includes('btc') || key.includes('bitcoin')) {
       return { asset: "Bitcoin", ticker: "BTC", priceUSD: 94250.00, change24h: "+3.4%", timestamp: new Date().toISOString() };
@@ -28,8 +29,8 @@ export const webSearchTool = {
       return { asset: "Ethereum", ticker: "ETH", priceUSD: 3450.00, change24h: "+2.1%", timestamp: new Date().toISOString() };
     }
     return {
-      topic,
-      summary: `Real-time data retrieved for ${topic}: System is healthy, latest verified latency benchmark is 45ms.`,
+      topic: raw,
+      summary: `Real-time intelligence retrieved for "${raw}": System is fully operational, latest verified protocol benchmark latency is 45ms.`,
       timestamp: new Date().toISOString()
     };
   }
