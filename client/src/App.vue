@@ -93,12 +93,12 @@
           href="https://iamsantosh.com"
           target="_blank"
           rel="noopener"
-          class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-white text-xs font-semibold transition-all shadow-sm group"
-          title="Created by Santosh Gautam (iamsantosh.com)"
+          class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-slate-200 hover:text-white text-xs font-semibold transition-all shadow-sm group"
+          title="Created with ❤️ by Santosh Gautam (iamsantosh.com)"
         >
-          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-          <span>By <strong>Santosh Gautam</strong></span>
-          <span class="text-[10px] text-blue-400">↗</span>
+          <span class="inline-block animate-pulse text-xs text-rose-500">❤️</span>
+          <span>Made by <strong>Santosh Gautam</strong></span>
+          <span class="text-[10px] text-rose-400 group-hover:translate-x-0.5 transition-transform">↗</span>
         </a>
 
         <!-- GitHub Star Link -->
@@ -616,7 +616,9 @@
         <!-- Footer Info -->
         <div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
           <div class="flex items-center gap-1.5">
-            <span>Built by</span>
+            <span>Built with</span>
+            <span class="inline-block animate-pulse text-rose-500 text-xs">❤️</span>
+            <span>by</span>
             <a href="https://iamsantosh.com" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 font-bold hover:underline">Santosh Gautam</a>
             <span>·</span>
             <a href="https://iamsantosh.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-slate-300">iamsantosh.com</a>
