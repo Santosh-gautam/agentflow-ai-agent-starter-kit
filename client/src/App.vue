@@ -142,48 +142,48 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════
-         VIEW 1: AGENT CHAT VIEWPORT (SCROLLABLE)
+         VIEW 1: AGENT CHAT VIEWPORT (CLEAN SCROLL)
     ═══════════════════════════════════════════════ -->
-    <main v-if="activeView === 'chat'" class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-4 overflow-y-auto space-y-5">
+    <main v-if="activeView === 'chat'" class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-3 overflow-y-auto space-y-4">
       
       <!-- Welcome Hero (When empty) -->
-      <div v-if="messages.length === 0" class="py-4 text-center max-w-2xl mx-auto space-y-4">
+      <div v-if="messages.length === 0" class="py-2 sm:py-3 text-center max-w-2xl mx-auto space-y-3">
         
-        <div class="inline-flex p-3 rounded-2xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 text-2xl shadow-lg">
+        <div class="inline-flex p-2.5 rounded-2xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 text-2xl shadow-lg">
           🤖
         </div>
 
-        <div class="space-y-1">
-          <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+        <div class="space-y-0.5">
+          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">
             Autonomous AI Agent Studio
           </h2>
-          <p class="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
+          <p class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed">
             Experience production <strong>Tool Calling (Function Calling)</strong> with Server-Sent Events (SSE). Ask queries, and watch the agent evaluate, execute tools, and stream answers.
           </p>
         </div>
 
         <!-- Connection Status & Guide Banner -->
-        <div class="p-3.5 rounded-2xl border text-left flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
+        <div class="p-3 rounded-2xl border text-left flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md"
              :class="userApiKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-900/80 border-slate-800'">
           <div class="space-y-0.5">
             <p class="text-xs font-bold text-white flex items-center gap-2">
               <span class="w-2 h-2 rounded-full" :class="userApiKey ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
               {{ userApiKey ? `Connected: Gemini (${selectedModel})` : 'Interactive Demo Sandbox Active' }}
             </p>
-            <p class="text-[11px] text-slate-400 leading-normal">
+            <p class="text-[11px] text-slate-400 leading-tight">
               {{ userApiKey ? 'Multi-step autonomous tool calling active with your custom Gemini API key.' : 'Connect your free Google Gemini API key to unlock unlimited autonomous tool calling & reasoning.' }}
             </p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <button
               @click="showKeyGuideModal = true"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-all border border-slate-700/60"
+              class="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-all border border-slate-700/60"
             >
               📖 How to get Key
             </button>
             <button
               @click="showSettingsModal = true"
-              class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md"
               :class="userApiKey ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'"
             >
               {{ userApiKey ? 'Manage' : 'Connect Key' }}
@@ -192,19 +192,19 @@
         </div>
 
         <!-- Suggestion Cards (Interactive Prompts) -->
-        <div class="pt-1 text-left space-y-2">
+        <div class="pt-0.5 text-left space-y-1.5">
           <div class="flex items-center justify-between">
             <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">⚡ Instant Tool-Calling Prompts</p>
             <span class="text-[11px] text-blue-400 font-medium">Click to Run</span>
           </div>
-          <div class="grid sm:grid-cols-2 gap-2.5">
+          <div class="grid sm:grid-cols-2 gap-2">
             <button
               v-for="s in promptSuggestions"
               :key="s.title"
               @click="submitPrompt(s.prompt)"
-              class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/90 hover:border-blue-500/60 hover:bg-slate-900 text-left transition-all group shadow-sm hover:shadow-md hover:shadow-blue-500/10"
+              class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800/90 hover:border-blue-500/60 hover:bg-slate-900 text-left transition-all group shadow-sm hover:shadow-md hover:shadow-blue-500/10"
             >
-              <div class="text-xs font-bold text-white group-hover:text-blue-400 flex items-center justify-between mb-1">
+              <div class="text-xs font-bold text-white group-hover:text-blue-400 flex items-center justify-between mb-0.5">
                 <span class="flex items-center gap-1.5">
                   <span>{{ s.icon }}</span>
                   <span>{{ s.title }}</span>
