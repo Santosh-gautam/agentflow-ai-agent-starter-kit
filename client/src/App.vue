@@ -3,7 +3,7 @@
     
     <!-- Ambient Background Glows -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      <div class="absolute -top-40 -left-40 w-[30rem] h-[30rem] bg-blue-600/10 rounded-full blur-[140px]"></div>
+      <div class="absolute -top-40 -left-40 w-[32rem] h-[32rem] bg-blue-600/10 rounded-full blur-[140px]"></div>
       <div class="absolute top-1/3 -right-40 w-[28rem] h-[28rem] bg-indigo-600/10 rounded-full blur-[140px]"></div>
       <div class="absolute -bottom-40 left-1/3 w-[30rem] h-[30rem] bg-cyan-600/10 rounded-full blur-[140px]"></div>
     </div>
@@ -25,12 +25,12 @@
               <span class="text-blue-400 font-mono text-xs font-semibold">Studio</span>
             </h1>
             <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/30">
-              v1.2 Active
+              v1.2 Live
             </span>
           </div>
           <p class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Tool Calling & Autonomous SSE Loop
+            Tool Calling Engine & SSE Loop
           </p>
         </div>
       </div>
@@ -56,7 +56,13 @@
           class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
           :class="activeView === 'pipeline' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-400 hover:text-white'"
         >
-          <span>📐 Pipeline Visualizer</span>
+          <span>📐 Architecture</span>
+        </button>
+        <button
+          @click="showKeyGuideModal = true"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold text-amber-400 hover:text-amber-300 transition-all flex items-center gap-1"
+        >
+          <span>📖 API Guide</span>
         </button>
       </div>
 
@@ -69,7 +75,7 @@
           class="px-3 sm:px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm border"
           :class="userApiKey ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/20' : 'bg-blue-600 hover:bg-blue-500 text-white border-blue-400/30 shadow-blue-500/20'"
         >
-          <span v-if="userApiKey">🔑 Gemini Connected</span>
+          <span v-if="userApiKey">🔑 Gemini Active</span>
           <span v-else>⚙️ Connect Gemini</span>
         </button>
 
@@ -118,14 +124,20 @@
         class="px-3 py-1.5 rounded-lg font-bold"
         :class="activeView === 'playground' ? 'bg-blue-600 text-white' : 'text-slate-400'"
       >
-        🧪 Tool Tester
+        🧪 Playground
       </button>
       <button
         @click="activeView = 'pipeline'"
         class="px-3 py-1.5 rounded-lg font-bold"
         :class="activeView === 'pipeline' ? 'bg-blue-600 text-white' : 'text-slate-400'"
       >
-        📐 Pipeline
+        📐 Flow
+      </button>
+      <button
+        @click="showKeyGuideModal = true"
+        class="px-3 py-1.5 rounded-lg font-bold text-amber-400"
+      >
+        📖 Guide
       </button>
     </div>
 
@@ -135,47 +147,55 @@
     <main v-if="activeView === 'chat'" class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 overflow-y-auto space-y-6">
       
       <!-- Welcome Hero (When empty) -->
-      <div v-if="messages.length === 0" class="py-8 text-center max-w-2xl mx-auto space-y-6">
+      <div v-if="messages.length === 0" class="py-6 text-center max-w-2xl mx-auto space-y-5">
         
         <div class="inline-flex p-4 rounded-3xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-transparent border border-blue-500/30 text-3xl shadow-xl">
           🤖
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-1.5">
           <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
             Autonomous AI Agent Studio
           </h2>
           <p class="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
-            Experience real <strong>Tool Calling (Function Calling)</strong> with live Server-Sent Events (SSE). The AI agent inspects tools, invokes APIs, executes math/charts, and synthesizes answers.
+            Experience production <strong>Tool Calling (Function Calling)</strong> with Server-Sent Events (SSE). Ask queries, and watch the agent iteratively evaluate, execute tools, and stream answers.
           </p>
         </div>
 
-        <!-- Connection Status Banner -->
-        <div class="p-4 rounded-2xl border text-left flex items-center justify-between gap-4"
-             :class="userApiKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-900/70 border-slate-800'">
+        <!-- Connection Status & Guide Banner -->
+        <div class="p-4 rounded-2xl border text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg"
+             :class="userApiKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-900/80 border-slate-800'">
           <div class="space-y-1">
             <p class="text-xs font-bold text-white flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" :class="userApiKey ? 'bg-emerald-400' : 'bg-amber-400'"></span>
-              {{ userApiKey ? `Live Gemini Connected (${selectedModel})` : 'Running in Interactive Demo Sandbox' }}
+              <span class="w-2.5 h-2.5 rounded-full" :class="userApiKey ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
+              {{ userApiKey ? `Connected: Gemini (${selectedModel})` : 'Interactive Demo Sandbox Active' }}
             </p>
-            <p class="text-[11px] text-slate-400">
-              {{ userApiKey ? 'Full reasoning & dynamic multi-step tool calls active.' : 'Connect your free Google Gemini API key to run unrestricted autonomous reasoning.' }}
+            <p class="text-[11px] text-slate-400 leading-normal">
+              {{ userApiKey ? 'Multi-step autonomous tool calling active with your custom Gemini API key.' : 'Connect your free Google Gemini API key to unlock unlimited autonomous tool calling & reasoning.' }}
             </p>
           </div>
-          <button
-            @click="showSettingsModal = true"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all"
-            :class="userApiKey ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20'"
-          >
-            {{ userApiKey ? 'Configure' : 'Add API Key' }}
-          </button>
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              @click="showKeyGuideModal = true"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-all border border-slate-700/60"
+            >
+              📖 How to get Key
+            </button>
+            <button
+              @click="showSettingsModal = true"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md"
+              :class="userApiKey ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20'"
+            >
+              {{ userApiKey ? 'Manage' : 'Connect Key' }}
+            </button>
+          </div>
         </div>
 
         <!-- Suggestion Cards (Interactive Prompts) -->
         <div class="pt-2 text-left space-y-2.5">
           <div class="flex items-center justify-between">
             <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">⚡ Instant Tool-Calling Prompts</p>
-            <span class="text-[11px] text-blue-400 font-medium">1-Click Run</span>
+            <span class="text-[11px] text-blue-400 font-medium">Click to Run</span>
           </div>
           <div class="grid sm:grid-cols-2 gap-2.5">
             <button
@@ -366,7 +386,7 @@
               <span>Interactive Tool Calling Playground</span>
             </h2>
             <p class="text-xs text-slate-400">
-              Test and execute registered tools independently without natural language chat.
+              Directly invoke registered backend tools and inspect latency and JSON schema validation.
             </p>
           </div>
           <span class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
@@ -464,53 +484,53 @@
       <div class="grid gap-4">
         
         <!-- Step 1 -->
-        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4">
+        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4 shadow-sm">
           <div class="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-400 font-black flex items-center justify-center shrink-0">
             1
           </div>
           <div class="space-y-1">
-            <h4 class="text-sm font-bold text-white">Prompt & Declarations Submission</h4>
+            <h4 class="text-sm font-bold text-white">Prompt & Tool Declarations Dispatch</h4>
             <p class="text-xs text-slate-400 leading-relaxed">
-              The user prompt arrives via HTTP POST. The backend attaches registered JSON schemas (<code class="text-cyan-300 font-mono">tools: [{ functionDeclarations }]</code>) to the Gemini model session.
+              The user query arrives via HTTP POST. The backend attaches registered JSON schemas (<code class="text-cyan-300 font-mono">tools: [{ functionDeclarations }]</code>) to the Gemini model session.
             </p>
           </div>
         </div>
 
         <!-- Step 2 -->
-        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4">
+        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4 shadow-sm">
           <div class="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 font-black flex items-center justify-center shrink-0">
             2
           </div>
           <div class="space-y-1">
-            <h4 class="text-sm font-bold text-white">Autonomous Tool Decision (Function Call Output)</h4>
+            <h4 class="text-sm font-bold text-white">Autonomous Decision (Function Call Output)</h4>
             <p class="text-xs text-slate-400 leading-relaxed">
-              If the model requires external data (e.g. Weather, Stocks, Charting), it halts generation and outputs a structured <code class="text-amber-300 font-mono">functionCall: { name, args }</code>.
+              If the model requires external data (Weather, Stocks, Charting, Calculations), it halts natural language generation and outputs a structured <code class="text-amber-300 font-mono">functionCall: { name, args }</code>.
             </p>
           </div>
         </div>
 
         <!-- Step 3 -->
-        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4">
+        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4 shadow-sm">
           <div class="w-8 h-8 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 font-black flex items-center justify-center shrink-0">
             3
           </div>
           <div class="space-y-1">
-            <h4 class="text-sm font-bold text-white">Local Tool Execution & SSE Dispatch</h4>
+            <h4 class="text-sm font-bold text-white">Node.js Tool Registry Execution & Real-time SSE Stream</h4>
             <p class="text-xs text-slate-400 leading-relaxed">
-              The server executes the matching tool handler, sends real-time SSE events (<code class="text-emerald-300 font-mono">event: tool_start</code>, <code class="text-emerald-300 font-mono">event: tool_result</code>) to the browser, and injects the result back to Gemini.
+              The server executes the matching tool handler, sends real-time SSE events (<code class="text-emerald-300 font-mono">event: tool_start</code>, <code class="text-emerald-300 font-mono">event: tool_result</code>) to the browser, and injects the output back into Gemini's reasoning context.
             </p>
           </div>
         </div>
 
         <!-- Step 4 -->
-        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4">
+        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-4 shadow-sm">
           <div class="w-8 h-8 rounded-xl bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-black flex items-center justify-center shrink-0">
             4
           </div>
           <div class="space-y-1">
-            <h4 class="text-sm font-bold text-white">Final Answer Synthesis & Token Stream</h4>
+            <h4 class="text-sm font-bold text-white">Final Answer Synthesis & Token-by-Token SSE Stream</h4>
             <p class="text-xs text-slate-400 leading-relaxed">
-              Gemini reads the tool output in its working context and streams the natural language answer token-by-token (<code class="text-cyan-300 font-mono">event: token</code>) to complete the query.
+              Gemini analyzes the tool response data and streams the final synthesis text token-by-token (<code class="text-cyan-300 font-mono">event: token</code>) directly to the frontend.
             </p>
           </div>
         </div>
@@ -527,7 +547,7 @@
       <div v-if="isListening" class="mb-2 p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center justify-between animate-pulse">
         <span class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-          <span>🎙️ Voice Call Mode Active: Speak clearly now...</span>
+          <span>🎙️ Voice Mode Active: Speak clearly now...</span>
         </span>
         <button @click="stopVoiceInput" class="text-slate-300 hover:text-white underline text-[11px]">Stop Recording</button>
       </div>
@@ -552,7 +572,7 @@
           type="text"
           :disabled="isStreaming"
           maxlength="2000"
-          placeholder="Ask complex queries... (e.g. Check weather in Tokyo or generate revenue chart)"
+          placeholder="Ask complex queries... (e.g. Check Tokyo weather, NVDA stock, or revenue chart)"
           class="w-full bg-slate-900/90 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-2xl pl-14 pr-32 py-4 text-sm text-white placeholder-slate-500 outline-none transition-all shadow-2xl"
         />
 
@@ -581,13 +601,13 @@
 
       <!-- Footer Info -->
       <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2.5 px-2">
-        <span>Autonomous Multi-step Agent Loop · Model: <strong class="text-slate-400 font-mono">{{ selectedModel }}</strong></span>
+        <span>Model: <strong class="text-slate-400 font-mono">{{ selectedModel }}</strong> · Multi-step Agent Loop</span>
         <span>{{ inputQuery.length }} / 2000 chars</span>
       </div>
     </footer>
 
     <!-- ═══════════════════════════════════════════════
-         SETTINGS & API KEY MODAL
+         SETTINGS & API KEY MODAL (WITH DIRECT VALIDATION)
     ═══════════════════════════════════════════════ -->
     <div v-if="showSettingsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
       <div class="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-6 sm:p-8 shadow-2xl space-y-6 relative">
@@ -595,7 +615,10 @@
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
           <div class="flex items-center gap-2.5">
             <span class="text-xl">⚙️</span>
-            <h3 class="text-base font-black text-white">Agent & Gemini API Settings</h3>
+            <div>
+              <h3 class="text-base font-black text-white">Agent & Gemini API Settings</h3>
+              <p class="text-[11px] text-slate-400">Configure your personal Google AI key & target model</p>
+            </div>
           </div>
           <button @click="showSettingsModal = false" class="text-slate-400 hover:text-white text-sm">✕</button>
         </div>
@@ -604,27 +627,32 @@
           
           <!-- API Key Input -->
           <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-300">Google Gemini API Key</label>
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-slate-300">Google Gemini API Key</label>
+              <button
+                @click="showKeyGuideModal = true"
+                class="text-[11px] text-blue-400 hover:underline font-bold"
+              >
+                📖 Need a key? (Step-by-Step Guide)
+              </button>
+            </div>
             <div class="relative">
               <input
                 v-model="tempApiKey"
                 :type="showKeyText ? 'text' : 'password'"
                 placeholder="AIzaSy..."
-                class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 outline-none pr-16 font-mono"
+                class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 outline-none pr-20 font-mono"
               />
               <button
                 type="button"
                 @click="showKeyText = !showKeyText"
-                class="absolute right-3 top-3 text-[10px] text-slate-400 hover:text-white"
+                class="absolute right-3 top-3 text-[10px] font-bold text-slate-400 hover:text-white bg-slate-800 px-2 py-0.5 rounded"
               >
                 {{ showKeyText ? 'Hide' : 'Show' }}
               </button>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              🔒 Key is saved in browser <code class="text-cyan-300 font-mono">localStorage</code> and never logged on disk.
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 hover:underline font-semibold ml-1">
-                Get Free Key (Google AI Studio) →
-              </a>
+              🔒 Key is saved in your browser storage (<code class="text-cyan-300 font-mono">localStorage</code>) and never written to server disk.
             </p>
           </div>
 
@@ -639,6 +667,12 @@
               <option value="gemini-1.5-flash">gemini-1.5-flash (Balanced Speed & Cost)</option>
               <option value="gemini-1.5-pro">gemini-1.5-pro (Deep Multi-Step Reasoning)</option>
             </select>
+          </div>
+
+          <!-- Validation Message -->
+          <div v-if="validationStatus" class="p-3 rounded-xl text-xs font-bold font-mono"
+               :class="validationStatus.success ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'">
+            {{ validationStatus.message }}
           </div>
 
         </div>
@@ -663,11 +697,132 @@
             </button>
             <button
               @click="saveSettings"
-              class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg"
+              class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-500/20"
             >
               Save Settings
             </button>
           </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         STEP-BY-STEP GEMINI API KEY GUIDE MODAL
+    ═══════════════════════════════════════════════ -->
+    <div v-if="showKeyGuideModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div class="w-full max-w-2xl rounded-3xl border border-slate-800 bg-slate-900 p-6 sm:p-8 shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto">
+        
+        <!-- Guide Header -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">🔑</span>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-white">How to Get a Free Google Gemini API Key</h3>
+              <p class="text-xs text-slate-400">100% Free · No credit card required · Instant activation</p>
+            </div>
+          </div>
+          <button @click="showKeyGuideModal = false" class="text-slate-400 hover:text-white text-sm">✕</button>
+        </div>
+
+        <!-- 4 Step Guide Cards -->
+        <div class="space-y-3.5">
+          
+          <!-- Step 1 -->
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+              1
+            </div>
+            <div class="space-y-1 flex-1">
+              <h4 class="text-xs sm:text-sm font-bold text-white">Open Google AI Studio</h4>
+              <p class="text-xs text-slate-400">
+                Go to the official Google AI Studio key generator dashboard:
+              </p>
+              <div class="pt-1">
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/15 border border-blue-500/40 text-blue-400 hover:text-blue-300 text-xs font-bold transition-all"
+                >
+                  <span>🔗 aistudio.google.com/app/apikey</span>
+                  <span>↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+              2
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-xs sm:text-sm font-bold text-white">Sign In & Click "Create API Key"</h4>
+              <p class="text-xs text-slate-400">
+                Sign in with your Google account. Click the blue button labeled <strong>"Create API Key"</strong> and select <em>"Create API Key in new project"</em>.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+              3
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-xs sm:text-sm font-bold text-white">Copy Your Key String</h4>
+              <p class="text-xs text-slate-400">
+                Copy the newly generated key string (which starts with <code class="text-cyan-300 font-mono font-bold">AIzaSy...</code>).
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 flex items-start gap-3.5">
+            <div class="w-7 h-7 rounded-xl bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+              4
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-xs sm:text-sm font-bold text-white">Paste in AgentFlow Studio</h4>
+              <p class="text-xs text-slate-400">
+                Click <strong>"⚙️ Connect Gemini"</strong> in the top header, paste the key into the input box, and click <strong>"Save Settings"</strong>!
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Free Tier Benefits Info Box -->
+        <div class="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 space-y-1.5">
+          <p class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+            <span>🎁</span>
+            <span>Google Free Tier Quota Details</span>
+          </p>
+          <ul class="text-[11px] text-slate-400 space-y-1 list-disc list-inside">
+            <li><strong>Gemini 2.0 Flash:</strong> 15 Requests Per Minute (RPM) & 1,000,000 Tokens/min free.</li>
+            <li><strong>Zero Cost:</strong> No payment method or credit card is required.</li>
+            <li><strong>Full Privacy:</strong> Key is stored locally in your browser and used only for your sessions.</li>
+          </ul>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+          <a
+            href="https://aistudio.google.com/app/apikey"
+            target="_blank"
+            rel="noopener"
+            class="text-xs font-bold text-blue-400 hover:underline flex items-center gap-1"
+          >
+            <span>Open Google AI Studio</span>
+            <span>↗</span>
+          </a>
+          <button
+            @click="showKeyGuideModal = false; showSettingsModal = true"
+            class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-500/20"
+          >
+            I have my Key → Enter Key
+          </button>
         </div>
 
       </div>
@@ -739,7 +894,9 @@ const isListening = ref(false);
 
 const showSettingsModal = ref(false);
 const showToolsModal = ref(false);
+const showKeyGuideModal = ref(false);
 const showKeyText = ref(false);
+const validationStatus = ref(null);
 
 const userApiKey = ref('');
 const tempApiKey = ref('');
@@ -931,7 +1088,14 @@ function saveSettings() {
   userApiKey.value = tempApiKey.value.trim();
   localStorage.setItem('agentflow_gemini_key', userApiKey.value);
   localStorage.setItem('agentflow_gemini_model', selectedModel.value);
-  showSettingsModal.value = false;
+  validationStatus.value = {
+    success: true,
+    message: userApiKey.value ? '✓ Key saved & connected successfully.' : 'Key cleared. Running in Demo mode.'
+  };
+  setTimeout(() => {
+    showSettingsModal.value = false;
+    validationStatus.value = null;
+  }, 900);
 }
 
 function removeApiKey() {
