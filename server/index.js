@@ -35,12 +35,28 @@ const rateLimiter = (req, res, next) => {
   next();
 };
 
+// Map legacy or selected model names to active 2026 Gemini endpoints
+const resolveModelName = (name) => {
+  const modelMap = {
+    'gemini-3.8-flash': 'gemini-3.8-flash',
+    'gemini-3.7-flash': 'gemini-3.7-flash',
+    'gemini-3.5-flash': 'gemini-3.5-flash',
+    'gemini-flash-latest': 'gemini-flash-latest',
+    // Fallback legacy aliases
+    'gemini-2.0-flash': 'gemini-3.8-flash',
+    'gemini-1.5-flash': 'gemini-3.8-flash',
+    'gemini-1.5-pro': 'gemini-3.8-flash',
+    'gemini-2.5-flash': 'gemini-3.8-flash',
+  };
+  return modelMap[name] || 'gemini-3.8-flash';
+};
+
 // Health Check & System Info
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
     defaultServerKeyConfigured: Boolean(process.env.GEMINI_API_KEY),
-    supportedModels: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+    supportedModels: ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-flash-latest'],
     toolsCount: Object.keys(toolRegistry).length,
     timestamp: new Date().toISOString()
   });
@@ -83,7 +99,7 @@ app.post('/api/tools/execute', async (req, res) => {
 
 // Autonomous Agent Streaming Endpoint
 app.post('/api/agent/stream', rateLimiter, async (req, res) => {
-  const { prompt, model: requestedModel = 'gemini-2.0-flash' } = req.body;
+  const { prompt, model: requestedModel = 'gemini-3.8-flash' } = req.body;
 
   // Validation Guardrails
   if (!prompt || typeof prompt !== 'string') {
@@ -198,12 +214,10 @@ app.post('/api/agent/stream', rateLimiter, async (req, res) => {
     }
 
     // ══════════════════════════════════════════════════════════
-    // LIVE GEMINI AGENT EXECUTION
+    // LIVE GEMINI AGENT EXECUTION (2026 Model Architecture)
     // ══════════════════════════════════════════════════════════
     const genAI = new GoogleGenerativeAI(apiKey);
-    const validModel = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'].includes(requestedModel)
-      ? requestedModel
-      : 'gemini-2.0-flash';
+    const validModel = resolveModelName(requestedModel);
 
     const model = genAI.getGenerativeModel({
       model: validModel,

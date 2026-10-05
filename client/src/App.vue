@@ -667,14 +667,15 @@
 
           <!-- Model Selector -->
           <div class="space-y-1.5">
-            <label class="text-xs font-bold text-slate-300">Target Gemini Model</label>
+            <label class="text-xs font-bold text-slate-300">Target Gemini Model (2026 Engine)</label>
             <select
               v-model="selectedModel"
               class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-3 text-xs text-white outline-none cursor-pointer font-mono"
             >
-              <option value="gemini-2.0-flash">gemini-2.0-flash (Recommended · Ultra Low Latency)</option>
-              <option value="gemini-1.5-flash">gemini-1.5-flash (Balanced Speed & Cost)</option>
-              <option value="gemini-1.5-pro">gemini-1.5-pro (Deep Multi-Step Reasoning)</option>
+              <option value="gemini-3.8-flash">gemini-3.8-flash (Recommended · 2026 Flagship & Tools)</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash (High Precision & Reasoning)</option>
+              <option value="gemini-3.5-flash">gemini-3.5-flash (Ultra Low Latency)</option>
+              <option value="gemini-flash-latest">gemini-flash-latest (Auto-updating)</option>
             </select>
           </div>
 
@@ -1024,10 +1025,14 @@ async function executePlaygroundTool() {
 
 onMounted(() => {
   const savedKey = localStorage.getItem('agentflow_gemini_key') || '';
-  const savedModel = localStorage.getItem('agentflow_gemini_model') || 'gemini-2.0-flash';
+  const rawModel = localStorage.getItem('agentflow_gemini_model') || 'gemini-3.8-flash';
+  const supported = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+  const activeModel = supported.includes(rawModel) ? rawModel : 'gemini-3.8-flash';
+
   userApiKey.value = savedKey;
   tempApiKey.value = savedKey;
-  selectedModel.value = savedModel;
+  selectedModel.value = activeModel;
+  localStorage.setItem('agentflow_gemini_model', activeModel);
 
   // Initialize Speech Recognition if supported
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
